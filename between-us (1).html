@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Between Us — A Couples Card Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--brown-deep:#2c1a12;--brown-rich:#4a3228;--brown-warm:#6b4a3a;--brown-mid:#7d5e4e;--brown-soft:#9a8072;--brown-light:#b8a496;--brown-pale:#cdbfb4;--brown-cream:#e2d8d0;--bg:#e0d4c8;--parchment:#f2ebe4;--teal:#4a7c7e;--teal-light:#6a9fa1;--teal-pale:#b2d5d6;--sage:#6a8e6e;--dusty-blue:#5f7d94;--dusty-rose:#b5706a;--amber:#b8862e;--amber-light:#d4a84a;--rust:#a85a3a;--rust-light:#c8845e;--plum:#7a5072;--mauve:#8e6878;--indigo:#5a6488;--olive:#6e7a4a;--copper:#8a6540;--sky:#5988a0;--gold:#8a7632;--gold-light:#b8a44a;--berry:#7a4264;--goldenrod:#c9942a;--goldenrod-light:#dab04e;--royal-purple:#5c3d7a;--royal-purple-light:#7e5ca0;--deep-violet:#3d2654;--text-body:#4a3228;--text-muted:#7d5e4e}
+*{margin:0;padding:0;box-sizing:border-box}html{-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text-body);font-family:'Nunito',sans-serif;min-height:100dvh;overflow-x:hidden}
+.scallop-border{height:12px;background:linear-gradient(135deg,var(--brown-rich),#3d2a3a);position:relative;flex-shrink:0;z-index:1}
+.scallop-border::after{content:'';position:absolute;bottom:-6px;left:0;width:100%;height:6px;background:radial-gradient(circle at 6px -3px,transparent 6px,#3d2a3a 6px,#3d2a3a 8px,transparent 8px);background-size:12px 6px}
+.vignette-frame{border:2px solid var(--brown-light);border-radius:18px;padding:2rem 2.5rem;background:rgba(242,235,228,0.5);box-shadow:inset 0 0 30px rgba(74,50,40,0.04),0 4px 16px rgba(74,50,40,0.06);position:relative}
+.vignette-frame::before,.vignette-frame::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;border:1.5px solid var(--brown-soft)}
+.vignette-frame::before{top:-6px;left:50%;transform:translateX(-50%);background:var(--bg)}
+.vignette-frame::after{bottom:-6px;left:50%;transform:translateX(-50%);background:var(--bg)}
+.warm-divider{display:flex;align-items:center;justify-content:center;gap:8px;margin:0.8rem auto;width:fit-content}
+.warm-divider .leaf{width:20px;height:8px;position:relative}
+.warm-divider .leaf::before{content:'';position:absolute;width:16px;height:7px;border-radius:0 50% 50% 0;border:1.5px solid var(--brown-soft);border-left:none;top:0;left:2px}
+.warm-divider .leaf.flip{transform:scaleX(-1)}.warm-divider .dot{width:4px;height:4px;background:var(--amber);border-radius:50%}
+.screen{display:none}.screen.active{display:flex;flex-direction:column}
+.primary-btn{background:var(--brown-rich);color:var(--parchment);border:none;padding:0.8rem 2.2rem;font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;border-radius:40px;box-shadow:0 4px 14px rgba(44,26,18,0.18)}
+.primary-btn:hover,.primary-btn:active{background:var(--teal);transform:translateY(-2px)}
+.primary-btn:disabled{opacity:0.35;pointer-events:none}
+.intro-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;text-align:center;padding:1.5rem;background:var(--brown-deep);position:relative;overflow:hidden}
+.intro-wrap::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 60%,rgba(74,124,126,0.08) 0%,transparent 60%),radial-gradient(ellipse at 30% 80%,rgba(184,134,46,0.06) 0%,transparent 40%)}
+.intro-hero-joe{width:clamp(160px,40vw,220px);height:auto;margin-bottom:1.2rem;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.3));position:relative;z-index:1}
+.intro-hero-joe .cat-tail{animation:tailWag 2s ease-in-out infinite}
+.intro-hero-joe .cat-eyes{animation:blink 4s ease infinite}
+.intro-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,8vw,4.5rem);color:var(--parchment);line-height:1.1;font-weight:400;position:relative;z-index:1}
+.intro-title em{font-style:italic;color:var(--teal-pale)}
+.intro-subtitle{font-family:'Lora',serif;font-style:italic;font-size:clamp(0.85rem,2.5vw,1rem);color:var(--brown-soft);margin-top:0.3rem;position:relative;z-index:1}
+.joe-welcome{font-family:'Lora',serif;font-style:italic;font-size:clamp(0.78rem,2.2vw,0.92rem);color:var(--brown-light);margin-top:1.5rem;margin-bottom:2rem;max-width:320px;line-height:1.6;position:relative;z-index:1;padding:0.6rem 1rem;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.06)}
+.joe-welcome::before{content:'"';font-family:'Playfair Display',serif;font-size:2rem;color:var(--teal);position:absolute;top:-4px;left:8px;line-height:1}
+.intro-btn{background:var(--teal);color:var(--parchment);border:none;padding:1rem 2.8rem;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;border-radius:50px;box-shadow:0 6px 20px rgba(74,124,126,0.3);position:relative;z-index:1}
+.intro-btn:hover,.intro-btn:active{background:var(--teal-light);transform:translateY(-2px);box-shadow:0 8px 28px rgba(74,124,126,0.4)}
+.intro-footer{position:absolute;bottom:1.2rem;font-size:0.52rem;color:rgba(184,164,150,0.3);letter-spacing:0.1em;z-index:1}
+.selector-wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:0;min-height:100dvh;background:linear-gradient(180deg,var(--brown-cream) 0%,#d8cdc4 60%,#c4b5aa 100%);position:relative}
+.selector-bg-joe{position:fixed;top:50%;left:50%;transform:translate(-50%,-45%);width:clamp(280px,70vw,400px);height:auto;opacity:0.04;pointer-events:none;z-index:0}
+.selector-header{text-align:center;padding:1.4rem 1rem 0.5rem;position:relative;z-index:1;background:linear-gradient(135deg,var(--brown-rich),#3d2a3a);width:100%;margin-bottom:0.8rem}
+.selector-title{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--parchment)}
+.selector-title em{color:var(--teal-pale);font-style:italic}
+.selector-sub{font-family:'Lora',serif;font-style:italic;font-size:0.75rem;color:var(--brown-light);margin-top:0.15rem}
+.presets-feed{width:100%;max-width:440px;padding:0 1rem;display:flex;flex-direction:column;gap:0.65rem;margin:0 auto}
+.preset-card{background:var(--parchment);border-radius:16px;padding:1.1rem 1.2rem;cursor:pointer;transition:all 0.3s;border:2px solid transparent;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(44,26,18,0.06)}
+.preset-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(44,26,18,0.1)}
+.preset-card:active{transform:translateY(0);box-shadow:0 2px 8px rgba(44,26,18,0.08)}
+.preset-card .pc-emoji{font-size:1.5rem;margin-bottom:0.3rem;display:block}
+.preset-card .pc-name{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--brown-deep);display:block;margin-bottom:0.2rem}
+.preset-card .pc-vibe{font-family:'Lora',serif;font-style:italic;font-size:0.75rem;color:var(--brown-mid);line-height:1.5;display:block;margin-bottom:0.35rem}
+.preset-card .pc-meta{font-size:0.58rem;font-weight:600;color:var(--brown-soft);display:flex;align-items:center;gap:0.4rem}
+.preset-card .pc-dot{width:3px;height:3px;border-radius:50%;background:var(--brown-pale)}
+.preset-card .pc-cats{font-size:0.5rem;font-weight:400;color:var(--brown-light);display:block;margin-top:0.2rem}
+.preset-card::after{content:'→';position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--brown-pale);transition:all 0.3s;font-weight:300}
+.preset-card:hover::after{right:0.7rem;color:var(--teal)}
+.quick-draws{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:0.4rem;width:100%;max-width:440px;padding:0 1rem;margin:0 auto}
+.quick-draw-chip{background:var(--parchment);border-radius:12px;padding:0.6rem 0.7rem;cursor:pointer;transition:all 0.25s;text-align:center;box-shadow:0 1px 6px rgba(44,26,18,0.04);border:1.5px solid transparent}
+.quick-draw-chip:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(44,26,18,0.08);border-color:var(--brown-pale)}
+.quick-draw-chip:active{transform:translateY(0)}
+.quick-draw-chip .qd-name{font-family:'Nunito',sans-serif;font-weight:700;font-size:0.68rem;color:var(--brown-deep);display:block}
+.quick-draw-chip .qd-vibe{font-family:'Lora',serif;font-style:italic;font-size:0.52rem;color:var(--brown-soft);display:block;margin-top:0.1rem}
+.section-label{font-size:0.58rem;font-weight:700;color:var(--brown-mid);letter-spacing:0.12em;text-transform:uppercase;text-align:center;margin-top:1rem;margin-bottom:0.4rem}
+.custom-toggle{display:flex;align-items:center;justify-content:center;gap:0.4rem;margin:1.2rem auto 0.5rem;cursor:pointer;padding:0.4rem 1rem;border-radius:20px;background:none;border:1px solid var(--brown-pale);font-family:'Nunito',sans-serif;font-size:0.62rem;font-weight:600;color:var(--brown-soft);transition:all 0.3s}
+.custom-toggle:hover{border-color:var(--brown-mid);color:var(--brown-mid)}
+.custom-toggle .toggle-arrow{transition:transform 0.3s;font-size:0.5rem}
+.custom-toggle.open .toggle-arrow{transform:rotate(180deg)}
+.custom-section{max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1);width:100%;max-width:600px;margin:0 auto}
+.custom-section.open{max-height:2000px}
+.custom-inner{padding:0.5rem 1rem 1rem}
+.category-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.35rem;width:100%;margin-bottom:0.6rem}
+.sel-card{background:var(--parchment);border:2px solid var(--brown-pale);border-radius:10px;padding:0.45rem 0.55rem;cursor:pointer;transition:all 0.25s;position:relative}
+.sel-card:hover{border-color:var(--brown-mid);transform:translateY(-1px);box-shadow:0 2px 8px rgba(44,26,18,0.07)}
+.sel-card.selected{border-color:var(--teal);background:rgba(74,124,126,0.06)}
+.sel-card.selected::after{content:'✓';position:absolute;top:3px;right:5px;color:var(--teal);font-weight:700;font-size:0.65rem}
+.sel-card-icon{font-size:0.85rem;display:block}
+.sel-card-name{font-weight:700;font-size:0.62rem;color:var(--brown-deep)}
+.sel-card-count{font-size:0.48rem;color:var(--brown-light)}
+.selector-actions{display:flex;gap:0.4rem;justify-content:center;margin-bottom:0.4rem}
+.select-all-btn{background:none;border:1px solid var(--brown-light);padding:0.25rem 0.75rem;border-radius:16px;font-family:'Nunito',sans-serif;font-size:0.6rem;font-weight:600;color:var(--brown-warm);cursor:pointer;transition:all 0.3s}
+.select-all-btn:hover{border-color:var(--brown-mid);color:var(--brown-deep)}
+.selector-bottom{padding:0 1rem 1.5rem;width:100%;max-width:440px;margin:0 auto;text-align:center}
+.game-wrap{min-height:100dvh;display:flex;flex-direction:column;background:linear-gradient(180deg,#2a1f2e 0%,#3d2a24 20%,#5a3e32 35%,var(--brown-cream) 60%);position:relative}
+.game-header{background:linear-gradient(135deg,var(--brown-rich),#3d2a3a);padding:0.5rem 0.8rem;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.game-title{font-family:'Playfair Display',serif;color:var(--parchment);font-size:1rem;font-weight:400}.game-title em{color:var(--teal-pale);font-style:italic}
+.header-btn{background:none;border:1.5px solid rgba(255,255,255,0.25);color:var(--brown-pale);padding:0.35rem 0.65rem;font-family:'Nunito',sans-serif;font-size:0.62rem;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:16px;transition:all 0.3s;position:absolute;min-height:34px;display:flex;align-items:center}
+.header-btn:hover{border-color:var(--teal-pale);color:var(--teal-pale)}
+.header-btn.left{left:0.5rem}.header-btn.right{right:0.5rem;font-size:1.1rem;padding:0.2rem 0.55rem}
+.active-cats-bar{display:flex;flex-wrap:wrap;gap:0.15rem;justify-content:center;padding:0.3rem 0.5rem 0.06rem;max-width:700px;margin:0 auto;position:relative;z-index:1}
+.active-cat-tag{font-size:0.44rem;font-weight:600;padding:0.08rem 0.25rem;border-radius:6px;background:var(--brown-cream);color:var(--brown-warm)}
+.game-toolbar{display:flex;justify-content:center;gap:0.5rem;padding:0.25rem 0.8rem 0;position:relative;z-index:1}
+.tool-btn{background:var(--parchment);border:1.5px solid var(--brown-pale);padding:0.4rem 0.75rem;border-radius:16px;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:700;color:var(--brown-warm);cursor:pointer;transition:all 0.25s;display:flex;align-items:center;gap:4px;min-height:36px}
+.tool-btn:hover{border-color:var(--brown-mid);color:var(--brown-deep);transform:translateY(-1px);box-shadow:0 2px 8px rgba(44,26,18,0.1)}
+.tool-btn .badge{background:var(--teal);color:white;border-radius:8px;padding:1px 5px;font-size:0.52rem;min-width:16px;text-align:center}
+.card-stage{flex:1;display:flex;align-items:center;justify-content:center;width:100%;max-width:380px;margin:0 auto;padding:0.4rem 1rem;perspective:1200px;position:relative;z-index:1}
+.deck-wrapper{position:relative;width:100%;aspect-ratio:3.6/4;max-height:54vh}
+.deck-shadow{position:absolute;inset:0;border-radius:16px;background:var(--brown-pale);border:1px solid rgba(44,26,18,0.06)}
+.deck-shadow:nth-child(1){transform:translate(4px,4px) rotate(1deg);opacity:0.4}
+.deck-shadow:nth-child(2){transform:translate(2px,2px) rotate(0.4deg);opacity:0.6}
+.card{position:relative;width:100%;height:100%;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.4rem 1.4rem 2.8rem;text-align:center;user-select:none;overflow:hidden;transition:box-shadow 0.3s}
+.card[data-cat="perception"]{background:var(--brown-rich);color:var(--parchment)}.card[data-cat="connection"]{background:var(--dusty-rose);color:var(--parchment)}.card[data-cat="communication"]{background:var(--dusty-blue);color:var(--parchment)}.card[data-cat="love-styles"]{background:var(--mauve);color:var(--parchment)}.card[data-cat="space-closeness"]{background:linear-gradient(145deg,var(--brown-warm),var(--brown-mid));color:var(--parchment)}.card[data-cat="reflect-self"]{background:var(--parchment);color:var(--brown-rich);border:2px solid var(--brown-light)}.card[data-cat="reflect-partner"]{background:var(--parchment);color:var(--teal);border:2px solid var(--teal-light)}.card[data-cat="reflect-us"]{background:var(--parchment);color:var(--brown-deep);border:2px solid var(--amber)}.card[data-cat="vision"]{background:linear-gradient(145deg,var(--gold),var(--gold-light));color:var(--parchment)}.card[data-cat="future"]{background:linear-gradient(145deg,var(--teal),var(--dusty-blue));color:var(--parchment)}.card[data-cat="money"]{background:var(--copper);color:var(--parchment)}.card[data-cat="travel"]{background:var(--sky);color:var(--parchment)}.card[data-cat="community"]{background:var(--sage);color:var(--parchment)}.card[data-cat="hobbies"]{background:var(--plum);color:var(--parchment)}.card[data-cat="media"]{background:var(--berry);color:var(--parchment)}.card[data-cat="astrology"]{background:var(--indigo);color:var(--parchment)}.card[data-cat="faith"]{background:var(--olive);color:var(--parchment)}.card[data-cat="silly"]{background:var(--amber-light);color:var(--brown-deep)}.card[data-cat="do-together"]{background:linear-gradient(145deg,var(--rust),var(--rust-light));color:var(--parchment)}.card[data-cat="break"]{background:linear-gradient(145deg,#3a3a3a,#555);color:var(--parchment)}
+.card-ornament-top,.card-ornament-bottom{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;opacity:0.25}
+.card-ornament-top{top:10px}.card-ornament-bottom{bottom:10px}
+.orn-dot{width:5px;height:5px;border-radius:50%}.orn-line{width:20px;height:2px;border-radius:1px}
+.orn-tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent}
+.orn-tri.down{border-bottom:none}
+.orn-circ{width:8px;height:8px;border-radius:50%;border:1.5px solid}
+.orn-diamond{width:6px;height:6px;transform:rotate(45deg)}
+/* Opposing ornament colors per card */
+.card{--orn:var(--goldenrod-light)}
+.card[data-cat="perception"]{--orn:#d4a84a}.card[data-cat="connection"]{--orn:#b2d5d6}.card[data-cat="communication"]{--orn:#dab04e}.card[data-cat="love-styles"]{--orn:#c9942a}.card[data-cat="space-closeness"]{--orn:#b2d5d6}
+.card[data-cat="reflect-self"]{--orn:#7a5072}.card[data-cat="reflect-partner"]{--orn:#b5706a}.card[data-cat="reflect-us"]{--orn:#5c3d7a}
+.card[data-cat="vision"]{--orn:#5c3d7a}.card[data-cat="future"]{--orn:#dab04e}.card[data-cat="money"]{--orn:#b2d5d6}.card[data-cat="travel"]{--orn:#c9942a}
+.card[data-cat="community"]{--orn:#dab04e}.card[data-cat="hobbies"]{--orn:#c9942a}.card[data-cat="media"]{--orn:#dab04e}.card[data-cat="astrology"]{--orn:#c9942a}
+.card[data-cat="faith"]{--orn:#dab04e}.card[data-cat="silly"]{--orn:#5c3d7a}.card[data-cat="do-together"]{--orn:#b2d5d6}.card[data-cat="break"]{--orn:#c9942a}
+.orn-dot{background:var(--orn)}.orn-line{background:var(--orn)}.orn-tri{border-bottom-color:var(--orn)}.orn-tri.down{border-top-color:var(--orn)}.orn-circ{border-color:var(--orn)}.orn-diamond{background:var(--orn)}
+.card-corner{position:absolute;width:18px;height:18px;opacity:0.15}
+.card-corner.tl{top:6px;left:6px;border-top:2.5px solid var(--orn);border-left:2.5px solid var(--orn);border-top-left-radius:6px}
+.card-corner.tr{top:6px;right:6px;border-top:2.5px solid var(--orn);border-right:2.5px solid var(--orn);border-top-right-radius:6px}
+.card-corner.bl{bottom:6px;left:6px;border-bottom:2.5px solid var(--orn);border-left:2.5px solid var(--orn);border-bottom-left-radius:6px}
+.card-corner.br{bottom:6px;right:6px;border-bottom:2.5px solid var(--orn);border-right:2.5px solid var(--orn);border-bottom-right-radius:6px}
+.card-side-orn{position:absolute;top:50%;transform:translateY(-50%);opacity:0.1;color:var(--orn)}
+.card-side-orn.left{left:8px}.card-side-orn.right{right:8px}
+.card-side-orn svg{width:10px;height:40px}
+.card-cat-label{font-size:0.5rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;opacity:0.5;margin-bottom:0.5rem}
+.card-question{font-family:'Lora',serif;font-size:clamp(0.86rem,2.4vw,1.18rem);line-height:1.55;font-weight:400;max-width:96%}
+.joe-card-comment{font-family:'Lora',serif;font-style:italic;font-size:0.52rem;opacity:0;transition:opacity 0.4s ease 0.35s;max-width:80%;margin-top:0.35rem}
+.joe-card-comment.visible{opacity:0.4}
+.on-card-controls{position:absolute;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:0.3rem;padding:0 0.6rem;opacity:0;transition:opacity 0.3s ease 0.4s}
+.on-card-controls.visible{opacity:1}
+.occ-btn{background:rgba(255,255,255,0.2);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1.5px solid rgba(255,255,255,0.25);color:inherit;padding:0.3rem 0.55rem;border-radius:12px;font-family:'Nunito',sans-serif;font-size:0.56rem;font-weight:700;cursor:pointer;transition:all 0.2s;opacity:0.75}
+.occ-btn:hover,.occ-btn:active{opacity:1;background:rgba(255,255,255,0.35);transform:translateY(-1px)}
+.card[data-cat="reflect-self"] .occ-btn,.card[data-cat="reflect-partner"] .occ-btn,.card[data-cat="reflect-us"] .occ-btn,.card[data-cat="silly"] .occ-btn{background:rgba(0,0,0,0.08);border-color:rgba(0,0,0,0.15)}
+.break-card-content{display:flex;flex-direction:column;align-items:center;gap:0.3rem}
+.break-card-content .break-emoji{font-size:1.6rem}.break-card-content .break-title{font-family:'Playfair Display',serif;font-size:0.95rem}.break-card-content .break-sub{font-family:'Lora',serif;font-style:italic;font-size:0.7rem;opacity:0.7;line-height:1.45}
+.break-play-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:var(--parchment);padding:0.28rem 0.85rem;border-radius:16px;font-family:'Nunito',sans-serif;font-size:0.62rem;font-weight:600;cursor:pointer;transition:all 0.25s;margin-top:0.1rem}
+.break-play-btn:hover{background:rgba(255,255,255,0.35)}
+.card.drawing{animation:cardDraw 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes cardDraw{0%{transform:translateY(28px) rotate(-2deg) scale(0.93);opacity:0}40%{transform:translateY(-10px) rotate(0.8deg) scale(1.02);opacity:1}100%{transform:translateY(0) rotate(0) scale(1);opacity:1}}
+.card.exiting{animation:cardExit 0.25s ease-in forwards}
+@keyframes cardExit{to{transform:translateX(-60px) rotate(-5deg);opacity:0}}
+.controls{padding:0 1rem 0.5rem;display:flex;flex-direction:column;align-items:center;gap:0.25rem;position:relative;z-index:1}
+.draw-btn{background:var(--brown-rich);color:var(--parchment);border:none;padding:0.6rem 1.6rem;font-family:'Nunito',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;border-radius:40px;box-shadow:0 4px 14px rgba(44,26,18,0.14)}
+.draw-btn:hover,.draw-btn:active{background:var(--teal);transform:translateY(-2px)}
+.progress-info{font-size:0.52rem;color:var(--brown-soft)}
+.drawer-overlay{position:fixed;inset:0;background:rgba(44,26,18,0.4);z-index:200;opacity:0;pointer-events:none;transition:opacity 0.3s}.drawer-overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-100%;width:min(300px,84vw);height:100%;background:var(--parchment);z-index:201;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(44,26,18,0.15)}.drawer.open{right:0}
+.drawer-header{background:var(--brown-rich);padding:0.45rem 0.7rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-title{color:var(--parchment);font-family:'Playfair Display',serif;font-size:0.82rem}
+.drawer-close{background:none;border:none;color:var(--brown-pale);font-size:1rem;cursor:pointer}
+.drawer-tabs{display:flex;border-bottom:1px solid var(--brown-pale);flex-shrink:0}
+.drawer-tab{flex:1;padding:0.32rem;text-align:center;font-size:0.54rem;font-weight:600;color:var(--brown-soft);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}.drawer-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.drawer-content{flex:1;overflow-y:auto;padding:0.4rem}
+.drawer-tab-panel{display:none}.drawer-tab-panel.active{display:block}
+.history-item{padding:0.32rem 0.38rem;border-bottom:1px solid var(--brown-cream);cursor:pointer;border-radius:4px;margin-bottom:0.06rem;transition:background 0.2s}.history-item:hover{background:var(--brown-cream)}
+.history-item .hi-cat{font-size:0.46rem;font-weight:700;color:var(--brown-soft);letter-spacing:0.06em;text-transform:uppercase}
+.history-item .hi-q{font-family:'Lora',serif;font-size:0.68rem;line-height:1.38;color:var(--text-body);margin-top:0.04rem}
+.history-item .hi-num{font-size:0.46rem;color:var(--brown-light)}
+.history-empty{text-align:center;color:var(--brown-soft);font-size:0.7rem;padding:1rem 0.5rem;font-style:italic;font-family:'Lora',serif}
+.saved-item{padding:0.32rem 0.38rem;border:1.5px solid var(--brown-pale);border-radius:6px;margin-bottom:0.22rem}
+.saved-item .hi-cat{font-size:0.46rem;font-weight:700;color:var(--brown-soft);text-transform:uppercase}
+.saved-item .hi-q{font-family:'Lora',serif;font-size:0.68rem;line-height:1.38;color:var(--text-body);margin-top:0.04rem}
+.saved-item .saved-actions{display:flex;gap:0.18rem;margin-top:0.15rem}
+.saved-item .sa-btn{font-size:0.48rem;font-weight:600;padding:0.12rem 0.35rem;border-radius:8px;border:1px solid var(--brown-pale);background:none;color:var(--brown-warm);cursor:pointer;transition:all 0.2s}.saved-item .sa-btn:hover{border-color:var(--teal);color:var(--teal)}.saved-item .sa-btn.remove:hover{border-color:var(--dusty-rose);color:var(--dusty-rose)}
+.tally-row{display:flex;align-items:center;justify-content:space-between;padding:0.2rem 0.3rem;border-bottom:1px solid var(--brown-cream);font-size:0.6rem}.tally-row .tally-name{font-weight:600}.tally-row .tally-count{color:var(--teal);font-weight:700;font-size:0.56rem}
+.tally-bar{height:3px;background:var(--brown-cream);border-radius:2px;margin-top:1px;overflow:hidden}.tally-fill{height:100%;background:var(--teal);border-radius:2px;transition:width 0.4s}
+.ttt-wrap{padding:0.6rem;text-align:center}.ttt-label{font-family:'Playfair Display',serif;font-size:0.85rem;color:var(--brown-deep)}.ttt-sublabel{font-family:'Lora',serif;font-style:italic;font-size:0.6rem;color:var(--brown-soft);margin-bottom:0.6rem}
+.ttt-board{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:145px;margin:0 auto 0.5rem;aspect-ratio:1}
+.ttt-cell{background:var(--brown-cream);border:none;border-radius:4px;font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--brown-rich);display:flex;align-items:center;justify-content:center;aspect-ratio:1}.ttt-cell:hover{background:var(--brown-pale)}.ttt-cell.x{color:var(--teal)}.ttt-cell.o{color:var(--dusty-rose)}.ttt-cell.win{background:var(--teal-pale)}
+.ttt-status{font-size:0.66rem;font-weight:600;color:var(--brown-deep);margin-bottom:0.3rem}
+.ttt-reset{background:var(--brown-rich);color:var(--parchment);border:none;padding:0.25rem 0.75rem;border-radius:14px;font-family:'Nunito',sans-serif;font-size:0.58rem;font-weight:600;cursor:pointer;transition:all 0.3s}.ttt-reset:hover{background:var(--teal)}
+.ttt-score{font-size:0.55rem;color:var(--brown-soft);margin-top:0.25rem}.ttt-score span{font-weight:700;color:var(--text-body)}
+.break-divider{border:none;border-top:1px solid var(--brown-pale);margin:0.8rem 0}
+.c4-wrap{padding:0.6rem;text-align:center}
+.c4-label{font-family:'Playfair Display',serif;font-size:0.85rem;color:var(--brown-deep)}.c4-sublabel{font-family:'Lora',serif;font-style:italic;font-size:0.6rem;color:var(--brown-soft);margin-bottom:0.5rem}
+.c4-board{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;width:210px;margin:0 auto 0.5rem}
+.c4-cell{background:var(--brown-cream);border:none;border-radius:50%;aspect-ratio:1;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.c4-cell:hover{background:var(--brown-pale)}
+.c4-cell.p1{background:var(--teal);box-shadow:inset 0 2px 4px rgba(0,0,0,0.15)}
+.c4-cell.p2{background:var(--dusty-rose);box-shadow:inset 0 2px 4px rgba(0,0,0,0.15)}
+.c4-cell.win{box-shadow:0 0 0 2.5px var(--goldenrod),inset 0 2px 4px rgba(0,0,0,0.15)}
+.c4-col-hint{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;width:210px;margin:0 auto 3px}
+.c4-hint{text-align:center;font-size:0.4rem;color:var(--brown-soft);cursor:pointer;padding:2px 0;border-radius:4px;transition:color 0.2s;font-weight:700}
+.c4-hint:hover{color:var(--teal)}
+.c4-status{font-size:0.66rem;font-weight:600;color:var(--brown-deep);margin-bottom:0.3rem}
+.c4-reset{background:var(--brown-rich);color:var(--parchment);border:none;padding:0.25rem 0.75rem;border-radius:14px;font-family:'Nunito',sans-serif;font-size:0.58rem;font-weight:600;cursor:pointer;transition:all 0.3s}.c4-reset:hover{background:var(--teal)}
+.c4-score{font-size:0.55rem;color:var(--brown-soft);margin-top:0.25rem}.c4-score span{font-weight:700;color:var(--text-body)}
+.cat-container{position:fixed;bottom:0;right:8px;z-index:100;pointer-events:none}
+.cat-body{position:relative;width:55px;height:78px;pointer-events:auto;cursor:pointer}
+.cat-svg{width:55px;height:72px;filter:drop-shadow(0 2px 4px rgba(44,26,18,0.2));transition:transform 0.3s}.cat-body:hover .cat-svg{transform:translateY(-3px)}
+.cat-name-label{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:0.44rem;font-weight:700;color:var(--brown-mid);letter-spacing:0.05em;text-transform:uppercase}
+.cat-tooltip{position:absolute;bottom:80px;right:-6px;background:var(--brown-rich);color:var(--parchment);padding:4px 8px;border-radius:6px 6px 2px 6px;font-size:0.58rem;opacity:0;transform:translateY(5px);transition:all 0.3s;pointer-events:none;font-family:'Lora',serif;font-style:italic;box-shadow:0 2px 8px rgba(44,26,18,0.15);max-width:160px;white-space:normal;line-height:1.3}.cat-tooltip.show{opacity:1;transform:translateY(0)}
+.joe-collar{transition:fill 0.4s ease}
+/* Joe jump transition */
+.joe-transit{position:fixed;z-index:300;pointer-events:none;transition:none}
+.joe-transit.jumping{transition:all 0.7s cubic-bezier(0.34,1.56,0.64,1)}
+.screen-transitioning{animation:screenFadeOut 0.4s ease forwards}
+@keyframes screenFadeOut{to{opacity:0;transform:translateY(-20px)}}
+.screen-entering{animation:screenFadeIn 0.4s ease 0.35s both}
+@keyframes screenFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* Starry night background */
+.starry-bg{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.starry-bg canvas{width:100%;height:100%}
+/* Game orientation helper */
+.mix-label{font-size:0.5rem;font-weight:700;color:var(--goldenrod);letter-spacing:0.12em;text-transform:uppercase;text-align:center;padding:0.25rem 0 0.05rem;position:relative;z-index:1}
+.controls-hint{display:flex;justify-content:center;gap:0.6rem;padding:0.3rem 0.8rem 0.1rem;flex-wrap:wrap;position:relative;z-index:1}
+.hint-item{font-size:0.46rem;color:var(--brown-light);display:flex;align-items:center;gap:3px}
+.hint-item span{font-weight:700;color:var(--goldenrod-light)}
+@keyframes tailWag{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}.cat-tail{transform-origin:bottom center;animation:tailWag 2s ease-in-out infinite}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(0.1)}}.cat-eyes{animation:blink 4s ease infinite}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.anim-1{animation:fadeUp 0.6s ease 0.1s both}.anim-2{animation:fadeUp 0.6s ease 0.25s both}.anim-3{animation:fadeUp 0.6s ease 0.4s both}
+@supports(padding-bottom:env(safe-area-inset-bottom)){.controls{padding-bottom:calc(0.4rem + env(safe-area-inset-bottom))}.cat-container{bottom:env(safe-area-inset-bottom)}}
+@media(max-width:600px){.intro-hero-joe{width:clamp(140px,38vw,180px)}.intro-title{font-size:clamp(2.2rem,7vw,3.5rem)}.intro-btn{padding:0.85rem 2.2rem;font-size:0.78rem}.cat-body{width:46px;height:66px}.cat-svg{width:46px;height:60px}.cat-tooltip{font-size:0.52rem;bottom:68px;max-width:130px}.card{padding:1.8rem 1rem 2.8rem}.card-question{font-size:0.86rem}.category-cards{grid-template-columns:repeat(2,1fr)}.game-title{font-size:0.85rem}.deck-wrapper{max-height:46vh}.draw-btn{padding:0.5rem 1.2rem;font-size:0.62rem}.on-card-controls{gap:0.2rem;padding:0 0.4rem}.occ-btn{font-size:0.5rem;padding:0.24rem 0.4rem}.preset-card{padding:0.9rem 1rem}.preset-card .pc-name{font-size:0.95rem}.preset-card .pc-vibe{font-size:0.7rem}.quick-draws{grid-template-columns:repeat(2,1fr)}.selector-header{padding:1rem 0.8rem 0.4rem}}
+@media(max-width:380px){.category-cards{grid-template-columns:1fr}.intro-title{font-size:clamp(1.8rem,7vw,2.2rem)}}
+</style>
+</head>
+<body>
+<div class="screen active" id="introScreen"><div class="intro-wrap">
+<!-- Hero Joe -->
+<svg class="intro-hero-joe anim-1" viewBox="0 0 100 140" fill="none">
+<path class="cat-tail" d="M15 118Q-2 96 8 78Q18 64 24 76" stroke="#8a8a8a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+<ellipse cx="50" cy="108" rx="30" ry="24" fill="#9e9e9e"/>
+<ellipse cx="41" cy="103" rx="3.5" ry="13" fill="#787878" opacity="0.3" transform="rotate(-10,41,103)"/>
+<ellipse cx="54" cy="101" rx="3.5" ry="15" fill="#787878" opacity="0.3" transform="rotate(5,54,101)"/>
+<ellipse cx="65" cy="105" rx="3" ry="11" fill="#787878" opacity="0.3" transform="rotate(12,65,105)"/>
+<ellipse cx="50" cy="103" rx="14" ry="12" fill="#c0c0c0"/>
+<circle cx="50" cy="65" r="24" fill="#9e9e9e"/>
+<path d="M36 54L41 47L46 55L50 45L54 55L59 47L64 54" stroke="#6e6e6e" stroke-width="1.3" fill="none" stroke-linecap="round" opacity="0.5"/>
+<path d="M28 66Q34 63 37 67" stroke="#787878" stroke-width="0.9" fill="none" opacity="0.35"/><path d="M28 70Q34 68 37 71" stroke="#787878" stroke-width="0.9" fill="none" opacity="0.35"/>
+<path d="M72 66Q66 63 63 67" stroke="#787878" stroke-width="0.9" fill="none" opacity="0.35"/><path d="M72 70Q66 68 63 71" stroke="#787878" stroke-width="0.9" fill="none" opacity="0.35"/>
+<polygon points="30,50 25,25 45,43" fill="#9e9e9e"/><polygon points="70,50 75,25 55,43" fill="#9e9e9e"/>
+<polygon points="32,48 28,30 44,43" fill="#d4b5b0"/><polygon points="68,48 72,30 56,43" fill="#d4b5b0"/>
+<g class="cat-eyes"><ellipse cx="41" cy="63" rx="5" ry="5.5" fill="#5a8a3a"/><ellipse cx="59" cy="63" rx="5" ry="5.5" fill="#5a8a3a"/><ellipse cx="41" cy="63" rx="2.2" ry="5" fill="#2c1a12"/><ellipse cx="59" cy="63" rx="2.2" ry="5" fill="#2c1a12"/><circle cx="42.8" cy="61" r="1.5" fill="white" opacity="0.8"/><circle cx="60.8" cy="61" r="1.5" fill="white" opacity="0.8"/></g>
+<polygon points="50,71 47,74.5 53,74.5" fill="#d4a0a0"/><path d="M47 74.5Q50 78 53 74.5" stroke="#9e8888" stroke-width="1" fill="none"/>
+<line x1="15" y1="67" x2="38" y2="69.5" stroke="#555" stroke-width="0.7" opacity="0.3"/><line x1="13" y1="73" x2="37" y2="72" stroke="#555" stroke-width="0.7" opacity="0.3"/>
+<line x1="62" y1="69.5" x2="85" y2="67" stroke="#555" stroke-width="0.7" opacity="0.3"/><line x1="63" y1="72" x2="87" y2="73" stroke="#555" stroke-width="0.7" opacity="0.3"/>
+<ellipse cx="35" cy="126" rx="9" ry="5.5" fill="#9e9e9e"/><ellipse cx="65" cy="126" rx="9" ry="5.5" fill="#9e9e9e"/>
+<path d="M35 84Q50 91 65 84" stroke="#b5706a" stroke-width="3" fill="none" stroke-linecap="round"/>
+<rect x="41" y="86" rx="3.5" ry="3.5" width="18" height="11" fill="#4a7c7e"/>
+<text x="50" y="95" text-anchor="middle" fill="#f2ebe4" font-family="Nunito,sans-serif" font-size="7" font-weight="700">JOE</text>
+</svg>
+<h1 class="intro-title anim-1">Between <em>Us</em></h1>
+<p class="intro-subtitle anim-2">a card game for two</p>
+<p class="joe-welcome anim-2" id="joeWelcome"></p>
+<button class="intro-btn anim-3" onclick="goToSelector()">Let's Play</button>
+<span class="intro-footer">a little whiskey went into this</span>
+</div></div>
+
+<div class="screen" id="selectorScreen"><div class="selector-wrap">
+<!-- Background Joe watermark -->
+<svg class="selector-bg-joe" viewBox="0 0 100 140" fill="none">
+<ellipse cx="50" cy="108" rx="30" ry="24" fill="#7d5e4e"/>
+<ellipse cx="50" cy="103" rx="14" ry="12" fill="#9a8072"/>
+<circle cx="50" cy="65" r="24" fill="#7d5e4e"/>
+<polygon points="30,50 25,25 45,43" fill="#7d5e4e"/><polygon points="70,50 75,25 55,43" fill="#7d5e4e"/>
+<polygon points="32,48 28,30 44,43" fill="#9a8072"/><polygon points="68,48 72,30 56,43" fill="#9a8072"/>
+<ellipse cx="41" cy="63" rx="5" ry="5.5" fill="#6b4a3a"/><ellipse cx="59" cy="63" rx="5" ry="5.5" fill="#6b4a3a"/>
+<polygon points="50,71 47,74.5 53,74.5" fill="#9a8072"/>
+<ellipse cx="35" cy="126" rx="9" ry="5.5" fill="#7d5e4e"/><ellipse cx="65" cy="126" rx="9" ry="5.5" fill="#7d5e4e"/>
+<rect x="41" y="86" rx="3.5" ry="3.5" width="18" height="11" fill="#6b4a3a"/>
+</svg>
+<div class="selector-header">
+<h2 class="selector-title">Between <em>Us</em></h2>
+<p class="selector-sub">Tap a set and start playing.</p>
+</div>
+<div class="presets-feed" id="presetsFeed"></div>
+<p class="section-label">Quick Rounds · 5–10 min</p>
+<div class="quick-draws" id="quickDraws"></div>
+<button class="custom-toggle" onclick="toggleCustom()"><span>Build Your Own Deck</span><span class="toggle-arrow">▼</span></button>
+<div class="custom-section" id="customSection"><div class="custom-inner">
+<div class="category-cards" id="categoryCards"></div>
+<div class="selector-actions"><button class="select-all-btn" onclick="toggleSelectAll()">Select All</button><button class="select-all-btn" onclick="clearAll()">Clear</button></div>
+<div class="selector-bottom"><button class="primary-btn" id="beginBtn" onclick="startGame()" disabled>Begin — <span id="totalCount">0</span> cards</button></div>
+</div></div>
+</div></div>
+
+<div class="screen" id="gameScreen"><div class="game-wrap">
+<div class="starry-bg"><canvas id="starCanvas"></canvas></div>
+<div class="game-header"><button class="header-btn left" onclick="goToSelectorDirect()">← Back</button><span class="game-title">Between <em>Us</em></span><button class="header-btn right" onclick="openDrawer()">☰</button></div>
+<div class="scallop-border"></div>
+<p class="mix-label">Your Mix</p>
+<div class="active-cats-bar" id="activeCatsBar"></div>
+<div class="game-toolbar">
+<button class="tool-btn" onclick="openDrawer('history')">📋 <span class="badge" id="historyBadge">0</span></button>
+<button class="tool-btn" onclick="openDrawer('saved')">📌 <span class="badge" id="savedBadge">0</span></button>
+<button class="tool-btn" onclick="openDrawer('ttt')">🎮 Games</button>
+</div>
+<div class="card-stage"><div class="deck-wrapper">
+<div class="deck-shadow"></div><div class="deck-shadow"></div>
+<div class="card" id="card" data-cat="perception">
+<div class="card-ornament-top"><span class="orn-tri"></span><span class="orn-line"></span><span class="orn-circ"></span><span class="orn-line"></span><span class="orn-tri"></span></div>
+<div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+<div class="card-side-orn left"><svg viewBox="0 0 10 40"><circle cx="5" cy="5" r="3" fill="currentColor"/><line x1="5" y1="10" x2="5" y2="30" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="35" r="3" fill="currentColor"/></svg></div>
+<div class="card-side-orn right"><svg viewBox="0 0 10 40"><circle cx="5" cy="5" r="3" fill="currentColor"/><line x1="5" y1="10" x2="5" y2="30" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="35" r="3" fill="currentColor"/></svg></div>
+<span class="card-cat-label" id="cardLabel">Ready</span>
+<p class="card-question" id="cardQuestion">Tap "Draw" to pull your first card.</p>
+<span class="joe-card-comment" id="joeCardComment"></span>
+<div class="on-card-controls" id="onCardControls">
+<button class="occ-btn" onclick="event.stopPropagation();prevCard()">← Back</button>
+<button class="occ-btn" onclick="event.stopPropagation();saveCurrentCard()">📌 Save</button>
+<button class="occ-btn" onclick="event.stopPropagation();skipCard()">Skip →</button>
+<button class="occ-btn" onclick="event.stopPropagation();removeCurrentCard()">✕</button>
+</div>
+<div class="card-ornament-bottom" style="opacity:0"><span class="orn-tri down"></span><span class="orn-line"></span><span class="orn-diamond"></span><span class="orn-line"></span><span class="orn-tri down"></span></div>
+</div></div></div>
+<div class="controls-hint" id="controlsHint">
+<span class="hint-item"><span>← Back</span> prev card</span>
+<span class="hint-item"><span>📌 Save</span> for later</span>
+<span class="hint-item"><span>Skip →</span> next</span>
+<span class="hint-item"><span>✕</span> remove</span>
+</div>
+<div class="controls"><button class="draw-btn" onclick="drawCard()">Draw a Card</button><p class="progress-info" id="progressInfo"></p></div>
+</div></div>
+
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+<div class="drawer-header"><span class="drawer-title">Menu</span><button class="drawer-close" onclick="closeDrawer()">✕</button></div>
+<div class="drawer-tabs">
+<div class="drawer-tab active" data-tab="history" onclick="switchTab('history')">📋 History</div>
+<div class="drawer-tab" data-tab="saved" onclick="switchTab('saved')">📌 Saved</div>
+<div class="drawer-tab" data-tab="tally" onclick="switchTab('tally')">📊 Tally</div>
+<div class="drawer-tab" data-tab="ttt" onclick="switchTab('ttt')">🎮 Games</div>
+</div>
+<div class="drawer-content">
+<div class="drawer-tab-panel active" id="panel-history"></div>
+<div class="drawer-tab-panel" id="panel-saved"></div>
+<div class="drawer-tab-panel" id="panel-tally"></div>
+<div class="drawer-tab-panel" id="panel-ttt"><div class="ttt-wrap">
+<p class="ttt-label">Tic Tac Toe</p><p class="ttt-sublabel">Take a breather. Joe is watching.</p>
+<div class="ttt-board" id="tttBoard"></div>
+<p class="ttt-status" id="tttStatus">X goes first</p>
+<button class="ttt-reset" onclick="resetTTT()">New Game</button>
+<p class="ttt-score" id="tttScore"></p>
+</div>
+<hr class="break-divider">
+<div class="c4-wrap">
+<p class="c4-label">Connect 4</p><p class="c4-sublabel">Joe thinks you'll choke under pressure.</p>
+<div class="c4-col-hint" id="c4ColHint"></div>
+<div class="c4-board" id="c4Board"></div>
+<p class="c4-status" id="c4Status">🔵 goes first</p>
+<button class="c4-reset" onclick="resetC4()">New Game</button>
+<p class="c4-score" id="c4Score"></p>
+</div>
+</div></div></div></div>
+
+<div class="cat-container"><div class="cat-tooltip" id="catTooltip"></div>
+<div class="cat-body" onclick="petCat()">
+<svg class="cat-svg" viewBox="0 0 100 130" fill="none">
+<path class="cat-tail" d="M15 115Q0 95 10 80Q18 68 22 78" stroke="#8a8a8a" stroke-width="4" fill="none" stroke-linecap="round"/>
+<ellipse cx="50" cy="105" rx="28" ry="22" fill="#9e9e9e"/>
+<ellipse cx="42" cy="100" rx="3" ry="12" fill="#787878" opacity="0.3" transform="rotate(-10,42,100)"/>
+<ellipse cx="54" cy="98" rx="3" ry="14" fill="#787878" opacity="0.3" transform="rotate(5,54,98)"/>
+<ellipse cx="64" cy="102" rx="2.5" ry="10" fill="#787878" opacity="0.3" transform="rotate(12,64,102)"/>
+<ellipse cx="50" cy="100" rx="13" ry="11" fill="#c0c0c0"/>
+<circle cx="50" cy="65" r="22" fill="#9e9e9e"/>
+<path d="M38 54L42 48L46 55L50 46L54 55L58 48L62 54" stroke="#6e6e6e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/>
+<path d="M30 65Q35 62 38 66" stroke="#787878" stroke-width="0.8" fill="none" opacity="0.35"/><path d="M30 69Q35 67 38 70" stroke="#787878" stroke-width="0.8" fill="none" opacity="0.35"/>
+<path d="M70 65Q65 62 62 66" stroke="#787878" stroke-width="0.8" fill="none" opacity="0.35"/><path d="M70 69Q65 67 62 70" stroke="#787878" stroke-width="0.8" fill="none" opacity="0.35"/>
+<polygon points="32,50 28,28 44,44" fill="#9e9e9e"/><polygon points="68,50 72,28 56,44" fill="#9e9e9e"/>
+<polygon points="34,48 31,33 43,44" fill="#d4b5b0"/><polygon points="66,48 69,33 57,44" fill="#d4b5b0"/>
+<g class="cat-eyes"><ellipse cx="42" cy="63" rx="4.5" ry="5" fill="#5a8a3a"/><ellipse cx="58" cy="63" rx="4.5" ry="5" fill="#5a8a3a"/><ellipse cx="42" cy="63" rx="2" ry="4.5" fill="#2c1a12"/><ellipse cx="58" cy="63" rx="2" ry="4.5" fill="#2c1a12"/><circle cx="43.5" cy="61" r="1.3" fill="white" opacity="0.8"/><circle cx="59.5" cy="61" r="1.3" fill="white" opacity="0.8"/></g>
+<polygon points="50,70 47.5,73 52.5,73" fill="#d4a0a0"/><path d="M47.5 73Q50 77 52.5 73" stroke="#9e8888" stroke-width="1" fill="none"/>
+<line x1="18" y1="67" x2="39" y2="69" stroke="#444" stroke-width="0.6" opacity="0.3"/><line x1="16" y1="73" x2="38" y2="72" stroke="#444" stroke-width="0.6" opacity="0.3"/>
+<line x1="62" y1="69" x2="82" y2="67" stroke="#444" stroke-width="0.6" opacity="0.3"/><line x1="62" y1="72" x2="84" y2="73" stroke="#444" stroke-width="0.6" opacity="0.3"/>
+<ellipse cx="36" cy="122" rx="8" ry="5" fill="#9e9e9e"/><ellipse cx="64" cy="122" rx="8" ry="5" fill="#9e9e9e"/>
+<path d="M36 82Q50 88 64 82" stroke="#b5706a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<rect class="joe-collar" id="joeCollar" x="42" y="84" rx="3" ry="3" width="16" height="10" fill="#4a7c7e"/>
+<text x="50" y="92" text-anchor="middle" fill="#f2ebe4" font-family="Nunito,sans-serif" font-size="6" font-weight="700">JOE</text>
+</svg><span class="cat-name-label">Joe</span>
+</div></div>
+
+<script>
+
+const categories={
+perception:{icon:'👁',name:'Perception',questions:["What was your first impression of me — and what shifted it?","What do you think I'm most proud of?","What do you think my love language is? Evidence?","What do you think I daydream about?","Describe me to a stranger in three words.","What habit of mine is secretly endearing?","What do I need more of right now?","What quality of mine do you wish I could see?","When am I most confident?","What makes me laugh hardest?","What do I worry about most?","If I had a motto, what would it be?","What emotion is hardest for me to express?","What did you notice about me before I told you?","What part of me do most people miss?","When do I feel safest?","What's my relationship with rest like?"]},
+connection:{icon:'❤',name:'Connection',questions:["When did you realize this was important?","What moment between us do you replay?","What have you never told me but wanted to?","When do you feel most connected to me?","What small thing I do makes you feel cared for?","Is there something I do that creates distance?","What part of you came alive because of us?","What do you wish we did more of?","When were you proudest to be with me?","How do you most like to be comforted?","What boundary are you glad we have?","When did I last surprise you?","What do you need from me that's hard to ask?","Has a hard conversation brought us closer?","What have you learned about love from us?","What does safety feel like in a relationship?","When I reach out, what helps you reach back?","What does it mean to build a life with someone — not just date them?","What part of merging lives feels exciting, and what feels scary?"]},
+communication:{icon:'💬',name:'Communication',questions:["When you're overwhelmed, do you move toward people, away from them, or kind of against them?","How do you know when I'm actually listening — like really listening?","What's the best way to bring up something hard with you?","Do you process things by talking them out, writing them down, or just sitting with it?","When we disagree, what helps you still feel like we're on the same side?","What tone of voice instantly puts you on the defensive?","How do you like to be checked in on during a rough day?","When things go sideways between us, what does a good repair look like?","Is there something I say casually that actually means more to you than I realize?","When you shut down, what's usually going on underneath that?","When you're venting, how can I tell if you want advice or just want me to listen?","Do you feel like I make enough room for the uncomfortable stuff?","What's a communication habit of yours you'd like to get better at?","When you need reassurance, what does that actually look like for you?","How can I tell when your anxiety is doing the talking versus the real you?","Is there a topic we keep circling around but never quite land on?","When's the last time you felt genuinely heard by me?"]},
+"love-styles":{icon:'💝',name:'Love Styles',questions:["How did you first learn what love is supposed to look like?","What actually makes you feel most loved — and is that different from what you ask for?","Do you tend to show love the way you want to receive it?","Is there a way I show care that you don't always recognize in the moment?","When you feel disconnected from someone, what's your first instinct?","What's the difference between feeling loved and feeling appreciated?","What's an act of love that seems small to most people but is huge to you?","How do you feel about affection in public versus when it's just us?","When you say you want quality time, what does that actually look like?","When I compliment you, how does it land — do you take it in or brush it off?","What's a love language that doesn't come naturally to you?","How do you want to be supported when things get hard?","Is there a way you show love that tends to go unnoticed?","What does romance actually mean to you?","How has the way you love someone changed over time?","What kind of care did you not even know you needed until you got it?"]},
+"space-closeness":{icon:'🌙',name:'Space & Closeness',questions:["How much alone time do you actually need — and do you get enough of it?","If you need space from me, what's the kindest way you'd want to say it?","What's the difference between being alone and feeling lonely?","What does healthy independence look like when you're with someone?","When we're apart, what helps you still feel close to me?","How does it feel when you need to ask for time alone?","What does it look like when someone's too close versus too far away — for you specifically?","How do you recharge? And how is that different from how I do it?","What's something you need to do by yourself, no matter what?","When you pull away, is it because you need space or because something's bothering you?","What does a comfortable silence between us feel like?","How do you balance being present with me and still being present with yourself?","What does missing someone actually feel like to you?","Is there a kind of closeness that sometimes overwhelms you?","When anxiety makes one of us cling a little — what helps us both?","What does parallel play feel like — being together but doing your own thing?","If we shared a space, what would you need to still feel like it's yours?","What's a non-negotiable about your personal space, even with someone you love?"]},
+"reflect-self":{icon:'🪞',name:'Reflect: Self',questions:["What are you avoiding thinking about right now?","What version of yourself are you working toward?","What's a belief you've changed your mind on recently?","What's the kindest thing you've done for yourself lately?","What are you most afraid of failing at?","When do you feel most like yourself?","What's an emotional pattern you're trying to break?","What kind of compliment is hardest for you to accept?","How has your idea of success changed over the years?","What took you a really long time to accept about yourself?","What's a lesson you keep having to relearn?","When are you at your most brave?","What part of your identity are you still figuring out?","What do you wish someone had taught you about emotions when you were young?","What is your anxiety trying to protect you from?","What do you need right now that you're not giving yourself?","What kind of person do you want to be — not career, not role, just who?","What's a version of your life that would make you proud, even if nobody else understood it?"]},
+"reflect-partner":{icon:'🫶',name:'Reflect: Partner',questions:["What's something about me that most people don't notice?","How do you think I've grown since we got close?","What's a strength of mine you lean on more than I probably realize?","What do you admire about how I handle hard things?","What's something I do that genuinely inspires you?","When do you think I need space, even if I don't say it?","What's a dream of mine you want to support?","How do I show love differently than I like to receive it?","What do you think is the bravest thing about me?","Have you ever forgiven me for something I don't even know about?","How have I surprised you by changing?","What's a part of my life before you that you wish you'd been there for?","When is my anxiety at its loudest — and how do you want to help when that happens?","What about me do you hope I never lose?"]},
+"reflect-us":{icon:'🔗',name:'Reflect: Us',questions:["What do you think is our superpower as a pair?","What's the biggest challenge we're facing right now?","What's an inside joke that kind of defines us?","What do you think other people could learn from how we do this?","What's a ritual of ours you'd be sad to lose?","What's a compromise we've made that actually worked beautifully?","How do you think we've changed each other?","What's a story about us that you love telling people?","What's been your favorite season of this relationship so far?","When do we work best as a team?","What about us would surprise people if they knew?","What's our funniest miscommunication?","How do we bring each other back down when things get intense?","What have we been through together that we never could've predicted?","When did something stop being mine or yours and just become ours?","What's something we've built that neither of us could've built alone?","What are we getting right that we don't give ourselves enough credit for?"]},
+vision:{icon:'🌅',name:'Affirmative Vision',questions:["You're 50. You look up and scan your life. What do you hope you find?","What are the major goals you want to reach — ones that would make you feel like you really lived?","Forget practical. What do you actually want?","If everything went right — not perfect, just right — what does five years look like?","What does a full life look like? Not busy. Full.","What do you want to be known for?","What does thriving look like — not surviving, thriving?","Random Tuesday in your ideal life. Walk me through it.","What kind of home do you want to come back to?","Dream relationship — what does it look and feel like? Be specific.","What do you want to give to the world that only you can?","Fear completely off the table — what would you go after?","What legacy do you want to leave — not grand, just in the lives you touch?","Relationship with your body, mind, and spirit at its best?","What kind of community do you want to be part of?","What do you want your relationship with work to look like?","What do you want to say yes to more?","What do you want to finally stop carrying?","You're old. Looking back. What made it all worth it?","One thing you know you were meant to do — even if you haven't yet?"]},
+future:{icon:'✨',name:'Future',questions:["What are you most looking forward to about us?","Great weekend together — what does that look like now?","What should we try this month?","Conversation we've been putting off?","Small tradition we should create?","What should we never stop doing?","What should we learn together?","Goal we should work toward?","What does the next chapter feel like?","What about our future excites and scares you?","What will we laugh about a year from now?","How should we show up when things get hard?","What ordinary life do you dream about with me?","Small thing we should do this week?","What should our life feel like — not look like?","What does building a life together actually mean to you?","Conversation about merging logistics we should have soon?","Where do you see us at our best — what are we doing, how does it feel?"]},
+money:{icon:'💰',name:'Money & Security',questions:["What's your earliest memory around money — and what did it teach you?","How was money talked about in your family growing up?","What does financial security actually feel like to you?","Would you call yourself a saver, a spender, or somewhere in between?","What's your biggest financial anxiety right now?","When it comes to combining finances — fully, partially, or not at all?","What's a purchase you'd never regret, no matter the cost?","How do you decide whether something is 'worth it'?","What does generosity look like to you?","Do you carry any debt? How does that feel?","Does budgeting feel freeing to you, or stressful?","How transparent do you think we should be about money in this relationship?","What's the financial goal that matters most to you right now?","How do you feel about one partner earning more than the other?","If money were no object for a month, what would you do?","What's a financial conversation you think we should have?","How do you want us to handle shared expenses — even the awkward parts?"]},
+travel:{icon:'✈️',name:'Travel & Adventure',questions:["What's a place that genuinely changed you?","What's your ideal trip — planned or spontaneous? Luxury or scrappy?","What's the longest you'd want to travel together without coming home?","What's a destination you've always dreamed about?","What does travel bring out in you that daily life doesn't?","Are you a 'see everything' person or a 'one café all day' person?","What's the best meal you've ever had while traveling?","How do you handle conflict when you're traveling with someone?","What's a trip you want to take together?","What does adventure look like outside of travel?","What's your relationship with routine versus novelty?","Would you ever live somewhere else?","Have you ever felt most at home somewhere that wasn't home?","What would it be like to visit each other's hometowns?","What kind of traveler were you as a kid?","What's a trip that went totally wrong but makes a great story?","No budget, anywhere in the world, this year — where are we going?"]},
+community:{icon:'🏡',name:'Community & Roots',questions:["What's a family tradition you want to keep — and one you want to leave behind?","Who shaped how you love?","What about your upbringing is important for me to understand?","Is there someone from before me that you wish I could've met?","What role does your family of origin play in your life right now?","What does chosen family mean to you?","How has your relationship with your family changed since we've been together?","What's a childhood story that explains a lot about who you are?","What's a family dynamic you're actively trying not to repeat?","What's a cultural value that quietly guides how you move through the world?","Who in our lives makes you feel most like yourself?","What do you wish your family understood about us?","What's a relationship in your life you want to invest more in?","How do you think we should show up in our community?","What's a friendship that taught you something about love?","How do you imagine us folding into each other's families?","What traditions from your people do you want us to carry forward?","What kind of family or community do you want us to create together?"]},
+hobbies:{icon:'🔥',name:'Hobbies & Rabbit Holes',questions:["What do you know a ridiculous amount about? Teach me something.","What's a hobby of yours you wish I asked about more?","What are you currently hyperfixated on? Walk me through it.","What's a skill you've been quietly building on the side?","What could you talk about for an hour without getting bored?","What's a past obsession that actually shaped who you are?","What's something you've been wanting to get into but haven't started?","Tell me about a recent rabbit hole you fell into — spare no details.","What's a niche interest most people don't know you have?","What's the most satisfying part about your favorite hobby?","If you had a full free day with nothing on the calendar, what would you actually do?","What's something you find beautiful that most people find boring?","Is there an interest of mine that you've gotten curious about?","What's a piece of media — any kind — that changed how you think?","If you could master one skill overnight, what would it be?","What did you love as a kid that still lives somewhere in you?","Give me a 60-second knowledge dump on something you love. Go."]},
+media:{icon:'🎧',name:'Media Recs',questions:["Band or artist you think everyone should hear — play me your entry point.","Favorite show of all time? What makes it the one?","Favorite anime? What hooked you?","Book that changed how you see the world?","Favorite fiction book — and what stayed with you?","Favorite nonfiction — and what did it shift?","Podcast or episode you'd make everyone listen to?","Movie you could watch on repeat forever?","Album you've listened to front to back more than any other?","Song that makes you cry every time — or close?","A creator — any medium — you think is underrated?","What's something you watched or read recently that surprised you?","Comfort show or movie — the one you put on when nothing else works?","Documentary that blew your mind?","Video game that meant something to you?","Piece of art — any kind — that genuinely moved you?","What would you put on a playlist called 'this is who I am'?","Song that reminds you of us?","Media you loved as a kid that holds up?","What should we watch or read together next?","YouTube video you come back to for years — the one that reliably makes you laugh. Pull it up right now.","Show me a YouTube video you loved as a kid. Explain why it was everything.","What's a YouTube video you'd show someone to explain your sense of humor?","Random YouTube rabbit hole you fell into recently — walk me through how you got there."]},
+astrology:{icon:'🌟',name:'Astrology & Stars',questions:["Do you know your big three? What do they get right about you?","What's the most 'you' thing about your sun sign?","What part of your chart do you relate to the least?","Okay, guess my rising sign. Defend your answer.","What sign energy does our relationship give off?","Do you think our signs are actually compatible? What's the evidence?","What's the worst retrograde you've been through?","What's an astrological trait you secretly love about yourself?","If you could swap charts with any sign for a week, which one?","What's the most moon-sign thing you do?","Horoscopes — do you actually believe them, or do you just enjoy them?","What sign do you think makes the best partners?","What's a personality trait that astrology actually explains pretty well?","What do you think dominates our composite chart?","What's the most Venus thing about how you love?","Do you think the stars influence us, or just reflect who we already are?"]},
+faith:{icon:'🕊',name:'Faith & Meaning',questions:["What's your relationship with faith right now?","How was spirituality modeled for you growing up?","Do you have a grounding practice — even if it's unconventional?","What do you believe about what happens after this?","How has your faith or spirituality changed over time?","Do you believe there's something bigger than us?","Is there a prayer or phrase you come back to when things get hard?","How do you think spirituality should show up between us?","What's a moral principle that's non-negotiable for you?","Is your spiritual life something you want to share, or something that stays private?","What's the existential question you think about the most?","Is there a ritual — religious or not — that brings you peace?","What does forgiveness mean to you spiritually?","Have you ever had a moment that felt genuinely sacred?","Have you ever found meaning in suffering?","What do you want to pass on to others about values or purpose?"]},
+silly:{icon:'😂',name:'Silly',questions:["If we were cats, what kind of cats would we be?","Okay, who between us is surviving the zombie apocalypse?","What celebrity would be my perfect work nemesis?","What's the most embarrassing thing you've done to impress me?","If we had a reality show, what would it be called?","What food would I eat an embarrassing amount of if nobody was watching?","If we started a business together, what would it be — and who gets fired first?","What's my most dramatic personality trait?","If we swapped lives for a day, what's the first thing you'd do?","Which Disney villain do I slightly remind you of?","What's our theme song?","What's something weird about me that you find attractive?","If we went on a game show together, what would be our downfall?","Write my dating profile like you're half asleep. Go.","What superlative would you give me — 'most likely to...' what?","What conspiracy theory would our friends actually believe about us?","If we were a sandwich, what kind?","Would you still be with me if I were a worm?"]},
+"do-together":{icon:'🎯',name:'Do Together',questions:["Play a song that reminds you of your partner. Listen together.","Write three things you love. Exchange and read aloud.","60-second genuine compliment. No deflecting.","Show last five camera roll photos and explain.","Eye contact, two minutes, no speaking.","Alternate naming gratitudes until stumped.","Write a thank-you note right now.","One high, one low from the week. Just listen.","Pick something to look forward to. Calendar it.","2-minute hand or shoulder massage. No talking.","Share a song you've been into and say why.","Recreate your first date from memory.","Selfie right now. No retakes.","Share a childhood photo and story.","Plan a dream day — take turns adding.","Hold hands. Say one anxiety. Hold space.","Pick a meal to cook. Decide the recipe.","Name one thing the other does that makes you feel safe."]}
+};
+
+// PRESETS: each has cats array + optional maxPerCat to limit deck size for timed sessions
+const presets=[
+{name:'First Date Night',emoji:'🕯',vibe:'Light, flirty, a little silly. You\'re still figuring each other out.',time:'~20 min',cards:'24',cats:['perception','connection','silly','media'],maxPerCat:6},
+{name:'Deep Dive',emoji:'🌊',vibe:'The real stuff. For when you\'re ready to go there and stay a while.',time:'~45 min',cards:'40',cats:['vision','faith','space-closeness','communication','reflect-self'],maxPerCat:8},
+{name:'Dinner Party',emoji:'🍷',vibe:'Pass the phone around the table. Fun for a group, not just couples.',time:'~30 min',cards:'30',cats:['silly','hobbies','media','astrology','do-together'],maxPerCat:6},
+{name:'Road Trip',emoji:'🚗',vibe:'Miles to kill and things to say. Long haul, good company.',time:'~60 min',cards:'48',cats:['hobbies','media','travel','silly','vision','community'],maxPerCat:8},
+{name:'Building Together',emoji:'🏠',vibe:'Money, space, future, roots. For when "us" is becoming something real.',time:'~30 min',cards:'30',cats:['money','space-closeness','future','community','reflect-us'],maxPerCat:6},
+{name:'Dream Big',emoji:'✨',vibe:'All forward. What you want, where you\'re headed, who you\'re becoming.',time:'~25 min',cards:'24',cats:['vision','future','travel'],maxPerCat:8}
+];
+const quickDraws=[
+{name:'Spark',vibe:'first impressions + laughs',cats:['perception','silly'],maxPerCat:5},
+{name:'Wavelength',vibe:'connection + recs',cats:['connection','media'],maxPerCat:5},
+{name:'Show & Tell',vibe:'hobbies + activities',cats:['hobbies','do-together'],maxPerCat:5},
+{name:'Mirror',vibe:'self + partner',cats:['reflect-self','reflect-partner'],maxPerCat:5},
+{name:'What\'s Next',vibe:'future + fun',cats:['future','silly'],maxPerCat:5}
+];
+
+const breakPrompts=[
+{emoji:'🎮',title:'Game Break!',sub:'Tic Tac Toe. Loser draws next.',ttt:true},
+{emoji:'🎮',title:'Game Break!',sub:'Quick round. Joe demands it.',ttt:true},
+{emoji:'☕',title:'Pause',sub:'Get a drink, stretch. How are you feeling?'},
+{emoji:'🤲',title:'Breathing Break',sub:'Three deep breaths together. Inhale 4, hold 4, exhale 6.'},
+{emoji:'💬',title:'Free Talk',sub:'Say something no card has asked yet.'},
+{emoji:'🫂',title:'Touch Base',sub:'Hold hands 30 seconds. No talking.'},
+{emoji:'🎵',title:'Song Break',sub:'Each pick a song. Play back to back. Just listen.'}
+];
+
+let selectedCats=new Set(),deck=[],deckIndex=0,isAnimating=false,drawCount=0;
+let history=[],savedCards=[],removedQuestions=new Set();
+let currentEntry=null,historyPos=-1,isBreakCard=false,activePreset=null,activeMaxPerCat=null;
+let tttBoard=Array(9).fill(''),tttTurn='X',tttScore={X:0,O:0,draw:0},tttGameOver=false;
+
+const joeSweet=["Good one!","Purrfect~","*perks ears*","Answer honestly!","Joe is listening...","Don't skip!","*kneads*","Take your time.","Be brave!","*purrs*","No wrong answers.","Be gentle."];
+const joeSurly=["Spicy.","You're welcome.","Going to answer?","Joe didn't ask to be here.","Good luck.","Could be napping.","Joe is bored.","Joe judges silently.","You're stalling.","*stretches*","Oh, THAT one.","Less thinking."];
+const joePhilo=["Relationships are choosing each other repeatedly.","Vulnerability isn't weakness.","Love is a verb.","Being known is scarier than being loved."];
+const joeCatR={"silly":["Finally, fun."],"astrology":["Joe is a Leo rising. Obviously."],"faith":["*sits quietly*"],"space-closeness":["Joe gets personal space. Also ignores it."],"do-together":["Participation required."],"hobbies":["Knowledge dumps are love language."],"money":["Joe has expensive taste."],"travel":["Joe doesn't travel. But opinions? Plenty."],"vision":["Big dreams energy.","This is the good stuff."],"media":["Joe has opinions about your taste.","Recommend something good. Joe is judging.","Joe's favorite genre is nap.","Pull up the video. Joe wants to see.","Screen sharing is intimacy."]};
+const joeCard=["— Joe: no stalling","— Joe: eye contact","— Joe: honest answer","— Joe: breathe first","— Joe: flincher goes first","— Joe: phone down"];
+const joePet=["*purrrr*","Mrrp!","More pets.","*slow blink*","That's the spot.","*rolls over*","*headbutt*","Joe is the star.","Breathe.","Joe tolerates affection.","Don't stop."];
+const joeBreak=["Finally. Tired of feelings.","Break time.","You've earned this. Maybe.","Joe insists on breaks.","*stretches dramatically*"];
+const joeTTT=["Joe could beat both of you.","Beneath Joe.","*mild disdain*","Bold strategy."];
+
+function getJoeR(cat){if(joeCatR[cat]&&Math.random()<0.22){const p=joeCatR[cat];return p[Math.floor(Math.random()*p.length)]+' — Joe'}const r=Math.random();let p;if(r<0.55)p=joeSweet;else if(r<0.82)p=joeSurly;else p=joePhilo;return p[Math.floor(Math.random()*p.length)]+' — Joe'}
+function showJoe(t){const el=document.getElementById('catTooltip');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)}
+const collarColors=['#4a7c7e','#b5706a','#b8862e','#7a5072','#5a6488','#6a8e6e','#7a4264','#a85a3a','#5988a0','#8a7632','#8e6878','#6e7a4a'];
+function petCat(){showJoe(joePet[Math.floor(Math.random()*joePet.length)]+' — Joe');
+const c=document.getElementById('joeCollar');if(c){const nc=collarColors[Math.floor(Math.random()*collarColors.length)];c.setAttribute('fill',nc)}}
+
+// PRESETS
+function buildPresets(){
+const f=document.getElementById('presetsFeed');
+f.innerHTML=presets.map((p,i)=>'<div class="preset-card" onclick="playPreset('+i+')"><span class="pc-emoji">'+p.emoji+'</span><span class="pc-name">'+p.name+'</span><span class="pc-vibe">'+p.vibe+'</span><span class="pc-meta"><span>'+p.time+'</span><span class="pc-dot"></span><span>'+p.cards+' cards</span></span></div>').join('');
+const q=document.getElementById('quickDraws');
+q.innerHTML=quickDraws.map((p,i)=>'<div class="quick-draw-chip" onclick="playQuickDraw('+i+')"><span class="qd-name">'+p.name+'</span><span class="qd-vibe">'+p.vibe+'</span></div>').join('')}
+function playPreset(i){const p=presets[i];activePreset=i;activeMaxPerCat=p.maxPerCat||null;selectedCats.clear();p.cats.forEach(k=>{if(categories[k])selectedCats.add(k)});startGame()}
+function playQuickDraw(i){const p=quickDraws[i];activePreset=null;activeMaxPerCat=p.maxPerCat||null;selectedCats.clear();p.cats.forEach(k=>{if(categories[k])selectedCats.add(k)});startGame()}
+function toggleCustom(){const s=document.getElementById('customSection');const b=document.querySelector('.custom-toggle');s.classList.toggle('open');b.classList.toggle('open')}
+function selectPreset(i){playPreset(i)}
+
+function buildSelector(){const g=document.getElementById('categoryCards');g.innerHTML='';Object.entries(categories).forEach(([k,c])=>{const d=document.createElement('div');d.className='sel-card';d.dataset.cat=k;d.onclick=()=>toggleCat(k,d);d.innerHTML=`<span class="sel-card-icon">${c.icon}</span><span class="sel-card-name">${c.name}</span><p class="sel-card-count">${c.questions.length}</p>`;g.appendChild(d)})}
+function toggleCat(k,el){activePreset=null;activeMaxPerCat=null;
+if(selectedCats.has(k)){selectedCats.delete(k);el.classList.remove('selected')}else{selectedCats.add(k);el.classList.add('selected')}updateBegin()}
+function toggleSelectAll(){activePreset=null;activeMaxPerCat=null;
+const a=Object.keys(categories);if(selectedCats.size===a.length){clearAll();return}a.forEach(k=>selectedCats.add(k));document.querySelectorAll('.sel-card').forEach(c=>c.classList.add('selected'));updateBegin()}
+function clearAll(){selectedCats.clear();activePreset=null;activeMaxPerCat=null;document.querySelectorAll('.sel-card').forEach(c=>c.classList.remove('selected'));updateBegin()}
+function updateBegin(){let t=0;selectedCats.forEach(k=>{const n=categories[k].questions.length;t+=activeMaxPerCat?Math.min(n,activeMaxPerCat):n});
+document.getElementById('totalCount').textContent=t;document.getElementById('beginBtn').disabled=t===0}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function goToSelector(){
+const intro=document.getElementById('introScreen');
+const heroJoe=document.querySelector('.intro-hero-joe');
+if(intro.classList.contains('active')&&heroJoe){
+const hr=heroJoe.getBoundingClientRect();
+const clone=heroJoe.cloneNode(true);
+clone.style.position='fixed';clone.style.zIndex='300';clone.style.pointerEvents='none';
+clone.style.left=hr.left+'px';clone.style.top=hr.top+'px';
+clone.style.width=hr.width+'px';clone.style.height=hr.height+'px';
+clone.style.transition='none';clone.style.margin='0';
+document.body.appendChild(clone);
+heroJoe.style.visibility='hidden';
+intro.querySelector('.intro-wrap').classList.add('screen-transitioning');
+// Double rAF to ensure initial position is painted
+requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+clone.style.transition='left 0.7s cubic-bezier(0.34,1.56,0.64,1), top 0.7s cubic-bezier(0.34,1.56,0.64,1), width 0.7s cubic-bezier(0.34,1.56,0.64,1), height 0.7s cubic-bezier(0.34,1.56,0.64,1)';
+clone.style.left=(window.innerWidth-63)+'px';
+clone.style.top=(window.innerHeight-80)+'px';
+clone.style.width='55px';clone.style.height='72px';
+})});
+setTimeout(()=>{clone.remove();heroJoe.style.visibility='';
+intro.querySelector('.intro-wrap').classList.remove('screen-transitioning');
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+const sel=document.getElementById('selectorScreen');sel.classList.add('active');
+sel.querySelector('.selector-wrap').classList.add('screen-entering');
+setTimeout(()=>sel.querySelector('.selector-wrap').classList.remove('screen-entering'),500);
+window.scrollTo(0,0)},750)}
+else{showScreen('selectorScreen')}
+}
+function goToSelectorDirect(){showScreen('selectorScreen')}
+function startGame(){if(!selectedCats.size)return;buildDeck();renderActiveCats();drawCount=0;history=[];historyPos=-1;currentEntry=null;isBreakCard=false;
+document.getElementById('cardLabel').textContent='Ready';document.getElementById('cardQuestion').textContent='Tap "Draw" to pull your first card.';
+document.getElementById('joeCardComment').classList.remove('visible');document.getElementById('onCardControls').classList.remove('visible');updateBadges();showScreen('gameScreen')}
+
+function buildDeck(){deck=[];selectedCats.forEach(cat=>{let qs=categories[cat].questions.filter(q=>!removedQuestions.has(cat+'||'+q));
+if(activeMaxPerCat){for(let i=qs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qs[i],qs[j]]=[qs[j],qs[i]]}qs=qs.slice(0,activeMaxPerCat)}
+qs.forEach(q=>deck.push({cat,question:q,type:'question'}))});
+savedCards.forEach(sc=>{let b=Math.min(deck.length,Math.floor(Math.random()*8));for(let i=0;i<deck.length;i++){if(deck[i].cat===sc.cat&&i>0){b=i+1;break}}deck.splice(b,0,{...sc,type:'question'})});savedCards=[];
+for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
+const iv=()=>8+Math.floor(Math.random()*5);let n=iv();
+for(let i=n;i<deck.length;i+=iv()+1){deck.splice(i,0,{type:'break',...breakPrompts[Math.floor(Math.random()*breakPrompts.length)]});i++}
+deckIndex=0}
+
+function renderActiveCats(){document.getElementById('activeCatsBar').innerHTML=[...selectedCats].map(k=>`<span class="active-cat-tag">${categories[k].icon} ${categories[k].name}</span>`).join('')}
+
+function drawCard(){if(isAnimating)return;if(deckIndex>=deck.length)buildDeck();
+isAnimating=true;const card=document.getElementById('card'),lbl=document.getElementById('cardLabel'),q=document.getElementById('cardQuestion'),jc=document.getElementById('joeCardComment'),occ=document.getElementById('onCardControls');
+jc.classList.remove('visible');occ.classList.remove('visible');card.classList.add('exiting');
+setTimeout(()=>{card.classList.remove('exiting');const e=deck[deckIndex];deckIndex++;drawCount++;currentEntry=e;
+if(e.type==='break'){isBreakCard=true;card.setAttribute('data-cat','break');lbl.textContent='🎮 Break';
+q.innerHTML='<div class="break-card-content"><span class="break-emoji">'+e.emoji+'</span><span class="break-title">'+e.title+'</span><span class="break-sub">'+e.sub+'</span>'+(e.ttt?'<button class="break-play-btn" onclick="event.stopPropagation();openDrawer(\'ttt\')">Play Now</button>':'')+'</div>';
+showJoe(joeBreak[Math.floor(Math.random()*joeBreak.length)]+' — Joe')}
+else{isBreakCard=false;history.push(e);historyPos=history.length-1;
+card.setAttribute('data-cat',e.cat);lbl.textContent=categories[e.cat].icon+' '+categories[e.cat].name;q.textContent=e.question;
+if(Math.random()<0.25){jc.textContent=joeCard[Math.floor(Math.random()*joeCard.length)];jc.classList.add('visible')}else jc.textContent='';
+setTimeout(()=>occ.classList.add('visible'),400);showJoe(getJoeR(e.cat))}
+card.classList.add('drawing');setTimeout(()=>{card.classList.remove('drawing');isAnimating=false},500);
+updateProgress();updateBadges()},260)}
+
+function skipCard(){drawCard()}
+function prevCard(){if(historyPos<=0||isAnimating)return;historyPos--;const e=history[historyPos];currentEntry=e;isBreakCard=false;
+document.getElementById('card').setAttribute('data-cat',e.cat);
+document.getElementById('cardLabel').textContent=categories[e.cat].icon+' '+categories[e.cat].name;
+document.getElementById('cardQuestion').textContent=e.question;
+document.getElementById('joeCardComment').classList.remove('visible');document.getElementById('onCardControls').classList.add('visible');
+showJoe("Going back? Approved. — Joe")}
+
+function saveCurrentCard(){if(!currentEntry||isBreakCard)return;savedCards.push({cat:currentEntry.cat,question:currentEntry.question});
+const i=deck.findIndex((d,j)=>j>=deckIndex&&d.cat===currentEntry.cat&&d.question===currentEntry.question);
+if(i>-1)deck.splice(i,1);showJoe("Saved! — Joe");updateBadges();drawCard()}
+
+function removeCurrentCard(){if(!currentEntry||isBreakCard)return;removedQuestions.add(currentEntry.cat+'||'+currentEntry.question);
+deck=deck.filter(d=>!(d.cat===currentEntry.cat&&d.question===currentEntry.question));
+showJoe("Gone. — Joe");updateBadges();updateProgress();drawCard()}
+
+function updateProgress(){const r=deck.length-deckIndex;document.getElementById('progressInfo').textContent=drawCount+' drawn · '+Math.max(0,r)+' left'+(savedCards.length?' · '+savedCards.length+' saved':'');
+const hint=document.getElementById('controlsHint');if(hint&&drawCount>3)hint.style.display='none'}
+function updateBadges(){document.getElementById('historyBadge').textContent=history.length;document.getElementById('savedBadge').textContent=savedCards.length}
+
+function openDrawer(tab){document.getElementById('drawerOverlay').classList.add('open');document.getElementById('drawer').classList.add('open');if(tab)switchTab(tab);renderHistory();renderSaved();renderTally()}
+function closeDrawer(){document.getElementById('drawerOverlay').classList.remove('open');document.getElementById('drawer').classList.remove('open')}
+function switchTab(t){document.querySelectorAll('.drawer-tab').forEach(d=>d.classList.toggle('active',d.dataset.tab===t));document.querySelectorAll('.drawer-tab-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+t))}
+
+function renderHistory(){const p=document.getElementById('panel-history');if(!history.length){p.innerHTML='<p class="history-empty">No cards drawn yet.</p>';return}
+p.innerHTML=history.map((h,i)=>'<div class="history-item" onclick="jumpHistory('+i+')"><span class="hi-num">#'+(i+1)+'</span> <span class="hi-cat">'+categories[h.cat].icon+' '+categories[h.cat].name+'</span><p class="hi-q">'+h.question+'</p></div>').reverse().join('')}
+function jumpHistory(i){historyPos=i;currentEntry=history[i];isBreakCard=false;
+document.getElementById('card').setAttribute('data-cat',currentEntry.cat);
+document.getElementById('cardLabel').textContent=categories[currentEntry.cat].icon+' '+categories[currentEntry.cat].name;
+document.getElementById('cardQuestion').textContent=currentEntry.question;
+document.getElementById('joeCardComment').classList.remove('visible');document.getElementById('onCardControls').classList.add('visible');closeDrawer()}
+
+function renderSaved(){const p=document.getElementById('panel-saved');if(!savedCards.length){p.innerHTML='<p class="history-empty">No saved cards yet.</p>';return}
+p.innerHTML=savedCards.map((s,i)=>'<div class="saved-item"><span class="hi-cat">'+categories[s.cat].icon+' '+categories[s.cat].name+'</span><p class="hi-q">'+s.question+'</p><div class="saved-actions"><button class="sa-btn" onclick="playSaved('+i+')">▶ Play</button><button class="sa-btn remove" onclick="unsave('+i+')">✕</button></div></div>').join('')}
+function playSaved(i){const e=savedCards.splice(i,1)[0];currentEntry={...e,type:'question'};history.push(currentEntry);historyPos=history.length-1;drawCount++;isBreakCard=false;
+document.getElementById('card').setAttribute('data-cat',e.cat);
+document.getElementById('cardLabel').textContent=categories[e.cat].icon+' '+categories[e.cat].name;
+document.getElementById('cardQuestion').textContent=e.question;
+document.getElementById('onCardControls').classList.add('visible');updateBadges();updateProgress();closeDrawer()}
+function unsave(i){savedCards.splice(i,1);renderSaved();updateBadges()}
+
+function renderTally(){const p=document.getElementById('panel-tally');const c={};history.forEach(h=>{c[h.cat]=(c[h.cat]||0)+1});
+const t=history.length;if(!t){p.innerHTML='<p class="history-empty">Draw some cards first.</p>';return}
+p.innerHTML=Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>{const pc=Math.round(n/t*100);return'<div class="tally-row"><span class="tally-name">'+categories[cat].icon+' '+categories[cat].name+'</span><span class="tally-count">'+n+' ('+pc+'%)</span></div><div class="tally-bar"><div class="tally-fill" style="width:'+pc+'%"></div></div>'}).join('')}
+
+function initTTT(){const b=document.getElementById('tttBoard');b.innerHTML='';for(let i=0;i<9;i++){const c=document.createElement('button');c.className='ttt-cell';c.onclick=(function(idx){return function(){playTTT(idx)}})(i);b.appendChild(c)}updateTTTScore()}
+function resetTTT(){tttBoard=Array(9).fill('');tttTurn='X';tttGameOver=false;document.getElementById('tttStatus').textContent='X goes first';document.querySelectorAll('.ttt-cell').forEach(c=>{c.textContent='';c.className='ttt-cell'});showJoe(joeTTT[Math.floor(Math.random()*joeTTT.length)]+' — Joe')}
+function playTTT(i){if(tttBoard[i]||tttGameOver)return;tttBoard[i]=tttTurn;const c=document.querySelectorAll('.ttt-cell')[i];c.textContent=tttTurn;c.classList.add(tttTurn.toLowerCase());
+const w=checkWin();if(w){tttGameOver=true;tttScore[tttTurn]++;w.forEach(function(j){document.querySelectorAll('.ttt-cell')[j].classList.add('win')});document.getElementById('tttStatus').textContent=tttTurn+' wins!';updateTTTScore();return}
+if(tttBoard.indexOf('')===-1){tttGameOver=true;tttScore.draw++;document.getElementById('tttStatus').textContent='Draw!';updateTTTScore();return}
+tttTurn=tttTurn==='X'?'O':'X';document.getElementById('tttStatus').textContent=tttTurn+"'s turn"}
+function checkWin(){var l=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(var i=0;i<l.length;i++){var w=l[i];if(tttBoard[w[0]]&&tttBoard[w[0]]===tttBoard[w[1]]&&tttBoard[w[1]]===tttBoard[w[2]])return w}return null}
+function updateTTTScore(){document.getElementById('tttScore').innerHTML='<span>X: '+tttScore.X+'</span> · <span>O: '+tttScore.O+'</span> · Draws: '+tttScore.draw}
+
+// Connect 4
+const C4_ROWS=6,C4_COLS=7;
+let c4Board,c4Turn,c4Score={p1:0,p2:0,draw:0},c4GameOver;
+function initC4(){c4Board=Array(C4_ROWS).fill(null).map(()=>Array(C4_COLS).fill(0));c4Turn=1;c4GameOver=false;
+const b=document.getElementById('c4Board');b.innerHTML='';
+for(let r=0;r<C4_ROWS;r++)for(let c=0;c<C4_COLS;c++){const cell=document.createElement('button');cell.className='c4-cell';cell.dataset.row=r;cell.dataset.col=c;
+cell.onclick=(function(col){return function(){playC4(col)}})(c);b.appendChild(cell)}
+const h=document.getElementById('c4ColHint');h.innerHTML='';
+for(let c=0;c<C4_COLS;c++){const hint=document.createElement('span');hint.className='c4-hint';hint.textContent='▼';hint.onclick=(function(col){return function(){playC4(col)}})(c);h.appendChild(hint)}
+updateC4Score();document.getElementById('c4Status').textContent='🔵 goes first'}
+function resetC4(){initC4();showJoe(['Joe is ready for round two.','Connect 4? More like disconnect your ego.','Joe has seen better moves from houseplants.','This time, try strategy.'][Math.floor(Math.random()*4)]+' — Joe')}
+function playC4(col){if(c4GameOver)return;
+let row=-1;for(let r=C4_ROWS-1;r>=0;r--){if(c4Board[r][col]===0){row=r;break}}
+if(row===-1)return;
+c4Board[row][col]=c4Turn;
+const cells=document.querySelectorAll('.c4-cell');
+cells[row*C4_COLS+col].classList.add(c4Turn===1?'p1':'p2');
+const win=checkC4Win(row,col);
+if(win){c4GameOver=true;c4Turn===1?c4Score.p1++:c4Score.p2++;
+win.forEach(function(p){cells[p[0]*C4_COLS+p[1]].classList.add('win')});
+document.getElementById('c4Status').textContent=(c4Turn===1?'🔵':'🔴')+' wins!';updateC4Score();return}
+let full=true;for(let c=0;c<C4_COLS;c++)if(c4Board[0][c]===0)full=false;
+if(full){c4GameOver=true;c4Score.draw++;document.getElementById('c4Status').textContent='Draw!';updateC4Score();return}
+c4Turn=c4Turn===1?2:1;
+document.getElementById('c4Status').textContent=(c4Turn===1?'🔵':'🔴')+"'s turn"}
+function checkC4Win(r,c){const p=c4Board[r][c];const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+for(let d=0;d<dirs.length;d++){const dr=dirs[d][0],dc=dirs[d][1];let cells=[[r,c]];
+for(let s=1;s<4;s++){const nr=r+dr*s,nc=c+dc*s;if(nr>=0&&nr<C4_ROWS&&nc>=0&&nc<C4_COLS&&c4Board[nr][nc]===p)cells.push([nr,nc]);else break}
+for(let s=1;s<4;s++){const nr=r-dr*s,nc=c-dc*s;if(nr>=0&&nr<C4_ROWS&&nc>=0&&nc<C4_COLS&&c4Board[nr][nc]===p)cells.push([nr,nc]);else break}
+if(cells.length>=4)return cells}return null}
+function updateC4Score(){document.getElementById('c4Score').innerHTML='<span>🔵: '+c4Score.p1+'</span> · <span>🔴: '+c4Score.p2+'</span> · Draws: '+c4Score.draw}
+
+const joeWelcomes=["Grab a drink. Sit close. Joe has been expecting you.","You showed up. Good. Joe had doubts.","Phone down after this screen. Eye contact required. — Joe","Joe doesn't do small talk. Neither does this game.","Welcome. Joe made snacks. Just kidding. Joe made questions.","Sit somewhere comfortable. This might get real.","Joe believes in you. Probably.","The rules are: be honest, be kind, don't rush. Joe is watching.","Good evening. Or morning. Joe doesn't judge. Much."];
+function setJoeWelcome(){document.getElementById('joeWelcome').textContent=joeWelcomes[Math.floor(Math.random()*joeWelcomes.length)]}
+setJoeWelcome();buildPresets();buildSelector();initTTT();initC4();
+
+// Starry night background for game screen
+function paintStars(){
+const canvas=document.getElementById('starCanvas');if(!canvas)return;
+const wrap=canvas.parentElement.parentElement;
+const w=wrap.offsetWidth;const h=Math.min(wrap.offsetHeight,window.innerHeight);
+canvas.width=w*2;canvas.height=h*2;canvas.style.width=w+'px';canvas.style.height=h+'px';
+const ctx=canvas.getContext('2d');ctx.scale(2,2);
+// Star colors: goldenrod, warm white, pale purple, amber
+const starColors=['rgba(201,148,42,A)','rgba(218,176,78,A)','rgba(240,228,200,A)','rgba(126,92,160,A)','rgba(184,164,150,A)','rgba(92,61,122,A)'];
+const numStars=Math.floor(w*h/550);
+for(let i=0;i<numStars;i++){
+const x=Math.random()*w;const y=Math.random()*h*0.65;
+const r=Math.random()*2+0.3;
+const alpha=(0.12+Math.random()*0.5)*(1-y/(h*0.65)*0.8);
+const col=starColors[Math.floor(Math.random()*starColors.length)].replace('A',alpha.toFixed(2));
+ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+// Occasional glow on larger stars
+if(r>1.3){ctx.beginPath();ctx.arc(x,y,r*3.5,0,Math.PI*2);
+ctx.fillStyle=col.replace(/[\d.]+\)$/,(alpha*0.12).toFixed(2)+')');ctx.fill()}}
+// Constellation-like clusters
+for(let c=0;c<5;c++){
+const cx=w*0.1+Math.random()*w*0.8;const cy=h*0.03+Math.random()*h*0.35;
+for(let s=0;s<6;s++){
+const sx=cx+Math.random()*50-25;const sy=cy+Math.random()*40-20;
+const sr=Math.random()*1.6+0.5;const sa=0.25+Math.random()*0.35;
+ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);
+ctx.fillStyle='rgba(201,148,42,'+sa.toFixed(2)+')';ctx.fill();
+if(sr>1){ctx.beginPath();ctx.arc(sx,sy,sr*3,0,Math.PI*2);
+ctx.fillStyle='rgba(201,148,42,'+(sa*0.1).toFixed(2)+')';ctx.fill()}}}}
+// Repaint stars on game screen show
+const origShowScreen=showScreen;
+showScreen=function(id){origShowScreen(id);if(id==='gameScreen')setTimeout(paintStars,50)};
+window.addEventListener('resize',()=>{if(document.getElementById('gameScreen').classList.contains('active'))paintStars()});
+document.getElementById('card').addEventListener('click',function(e){if(!e.target.closest('.occ-btn')&&!e.target.closest('.break-play-btn'))drawCard()});
+document.addEventListener('keydown',function(e){var g=document.getElementById('gameScreen').classList.contains('active');if(!g)return;if(e.code==='Space'){e.preventDefault();drawCard()}if(e.code==='ArrowLeft')prevCard();if(e.code==='ArrowRight')skipCard()});
+
+</script>
+</body>
+</html>
